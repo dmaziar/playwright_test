@@ -17,7 +17,7 @@ test('Sauce test', async ({ page }) => {
     const devPage = new DevPage(page);
     const userName: string = 'standard_user';
     const pw: string = 'secret_sauce';
-    devPage.loginToSauceDemo({ userName, pw });
+    await devPage.loginToSauceDemo({ userName, pw });
     await expect(page).toHaveTitle('Swag Labs');
 });
 

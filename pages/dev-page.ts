@@ -14,8 +14,8 @@ export class DevPage {
 
     constructor(page: Page) {
         this.page = page;
-        this.userNameInp = page.locator('[data-test="username"]');
-        this.passInp = page.locator('[data-test="password"]');
+        this.userNameInp = page.locator('input[data-test="username"]');
+        this.passInp = page.locator('input[data-test="password"]');
         this.loginBtn = page.locator('[data-test="login-button"]');
         this.toDoMvcInp = page.getByPlaceholder('What needs to be done?');
         this.toDoMvcListItem = page.getByRole('listitem');
