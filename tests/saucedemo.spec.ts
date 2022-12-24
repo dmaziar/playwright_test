@@ -1,23 +1,42 @@
 // @ts-check
-import { test, expect } from '@playwright/test';
+import { test, expect, request } from '@playwright/test';
+import { DevPage } from '../pages/dev-page';
+
+test('Todo mvc test', async ({ page }) => {
+    const devPage = new DevPage(page);
+    const firstItem: string = 'First todo item';
+    const secondItem: string = 'Second todo Item';
+    await page.goto('https://demo.playwright.dev/todomvc/');
+    await devPage.addNewToDoMvc(firstItem);
+    await devPage.addNewToDoMvc(secondItem);
+    await devPage.checkToDoMvcItem(firstItem);
+    await devPage.checkToDoMvcItem(secondItem);
+});
 
 test('Sauce test', async ({ page }) => {
-    await page.goto('https://www.saucedemo.com/');
-    await page.locator('[data-test="username"]').click();
-    await page.locator('[data-test="username"]').fill('standard_user');
-    await page.locator('[data-test="password"]').click();
-    await page.locator('[data-test="password"]').fill('secret_sauce');
-    await page.locator('[data-test="login-button"]').click();
-    await expect(page).toHaveTitle('Swag Labs')
-  });
+    const devPage = new DevPage(page);
+    const userName: string = 'standard_user';
+    const pw: string = 'secret_sauce';
+    devPage.loginToSauceDemo({ userName, pw });
+    await expect(page).toHaveTitle('Swag Labs');
+});
 
-test('test', async ({ page }) => {
-  await page.goto('https://demo.playwright.dev/todomvc/');
-  await page.getByPlaceholder('What needs to be done?').click();
-  await page.getByPlaceholder('What needs to be done?').fill('type something');
-  await page.getByPlaceholder('What needs to be done?').press('Enter');
-  await page.getByPlaceholder('What needs to be done?').fill('type again');
-  await page.getByPlaceholder('What needs to be done?').press('Enter');
-  await page.getByRole('listitem').filter({ hasText: 'type something' }).getByRole('checkbox', { name: 'Toggle Todo' }).check();
-  await page.getByRole('listitem').filter({ hasText: 'type again' }).getByRole('checkbox', { name: 'Toggle Todo' }).check();
+test('Testing api calls', async () => {
+    const apiToken = process.env.CI ? 'someVariable' : process.env.API_TOKEN;
+    const apiContext = await request.newContext({
+        extraHTTPHeaders: {
+            Accept: 'application/vnd.github.v3+json',
+            Authorization: `${apiToken} `,
+        },
+        baseURL: 'https://api.github.com',
+    });
+    const getIssues = await apiContext.get('/issues?filter=all');
+    const res = await getIssues.json();
+    expect(getIssues.ok()).toBeTruthy();
+    expect(res).toContainEqual(
+        expect.objectContaining({
+            state: 'open',
+            body: 'Some comments',
+        }),
+    );
 });
